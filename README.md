@@ -1,4 +1,4 @@
-# Day 15 – SOC Tier 1 Incident Report: Mock SOC Shift Simulation Capstone
+# SOC Tier 1 Incident Report: Mock SOC Shift Simulation Capstone
 
 ---
 
@@ -113,9 +113,9 @@ All three alerts were correlated to a single coordinated attack campaign origina
 
 | Alert ID | Time | Severity | Description | Status |
 |---|---|---|---|---|
-| SOC-2026-001 | 08:14 AM | HIGH | SSH Brute Force — Host Compromised | Escalated to Tier 2 |
-| SOC-2026-002 | 10:32 AM | HIGH | Phishing Email — Spoofed PayPal | Contained |
-| SOC-2026-003 | 02:47 PM | CRITICAL | Suspicious Outbound - Data Exfiltration | Escalated to IR Team |
+| SOC-2026-001 | 08:14 AM | HIGH | SSH Brute Force Host Compromised | Escalated to Tier 2 |
+| SOC-2026-002 | 10:32 AM | HIGH | Phishing Email Spoofed PayPal | Contained |
+| SOC-2026-003 | 02:47 PM | CRITICAL | Suspicious Outbound Data Exfiltration | Escalated to IR Team |
 
 ---
 
@@ -134,8 +134,8 @@ All three alerts were correlated to a single coordinated attack campaign origina
 
 | Type | Value | Source | Verdict |
 |---|---|---|---|
-| IP Address | `185.220.101.45` | All 3 Alerts | ❌ Malicious — Tor Exit Node |
-| Domain | `secure-login-verify.com` | Alert 2 | ❌ Malicious — Phishing Domain |
+| IP Address | `185.220.101.45` | All 3 Alerts | ❌ Malicious Tor Exit Node |
+| Domain | `secure-login-verify.com` | Alert 2 | ❌ Malicious Phishing Domain |
 | Email | `attacker@secure-login-verify.com` | Alert 2 | ❌ Attacker Email |
 | Internal Host | `192.168.1.10` | Alert 1 + 3 | ❌ Compromised |
 | Data Exfiltrated | 2.3 MB outbound | Alert 3 | ❌ Possible Data Breach |
