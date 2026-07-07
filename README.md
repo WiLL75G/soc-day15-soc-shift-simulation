@@ -22,7 +22,7 @@ All three alerts were correlated to a single coordinated attack campaign origina
 
 ## Affected System
 
-- **Analyst on Shift:** James (SOC Tier 1)
+- **Analyst on Shift:** William (SOC Tier 1)
 - **Shift Window:** 08:00 AM 04:00 PM
 - **Compromised Host:** `192.168.1.10` (internal endpoint)
 - **Threat Origin:** `185.220.101.45` (Tor exit node)
