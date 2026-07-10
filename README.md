@@ -48,7 +48,7 @@ All three alerts were correlated to a single coordinated attack campaign origina
 
 ---
 
-### 2. Alert 1 — SSH Brute Force (08:14 AM)
+### 2. Alert 1 SSH Brute Force (08:14 AM)
 
 - SIEM alert `SOC-2026-001` (HIGH) fired at 08:14 AM
 - Identified 47 failed SSH attempts from `185.220.101.45`
@@ -63,7 +63,7 @@ All three alerts were correlated to a single coordinated attack campaign origina
 
 ---
 
-### 3. Alert 2 — Phishing Email (10:32 AM)
+### 3. Alert 2 Phishing Email (10:32 AM)
 
 - Email gateway alert `SOC-2026-002` (HIGH) fired at 10:32 AM
 - Identified a spoofed `security@paypal.com` sender
@@ -78,7 +78,7 @@ All three alerts were correlated to a single coordinated attack campaign origina
 
 ---
 
-### 4. Alert 3 — Suspicious Outbound / Data Exfiltration (02:47 PM)
+### 4. Alert 3 Suspicious Outbound / Data Exfiltration (02:47 PM)
 
 - SIEM alert `SOC-2026-003` (CRITICAL) fired at 02:47 PM
 - Detected compromised host `192.168.1.10` contacting external C2
