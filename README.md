@@ -1,203 +1,189 @@
-# SOC Tier 1 Incident Report: Mock SOC Shift Simulation Capstone
+# Mock SOC Shift Simulation, Capstone
 
----
+A full Tier 1 shift run end to end. Three alerts arrive eight hours apart and look unrelated. One shared IP proves they are the same attacker.
 
-## Incident Summary
+## At a Glance
 
-- **Incident Type:** Coordinated Multi-Stage Attack Campaign Full Shift Response
-- **Severity:** Critical (Active Incident Data Exfiltration Confirmed, IR Team Activated)
-- **Detection Method:** SIEM Alert Triage + Threat Intelligence Correlation + IOC Pivot Analysis
-- **Tools Used:** SIEM, VirusTotal, AbuseIPDB, MXToolbox, Whois, MITRE ATT&CK Framework
-- **Status:** Active Incident In Progress IR Team Activated
+| Field | Detail |
+| --- | --- |
+| Exercise Type | Tabletop SOC shift simulation, capstone |
+| Shift Window | 08:00 to 16:00 |
+| Alerts Handled | 3, one critical and two high |
+| Disposition | 1 contained at Tier 1, 1 escalated to Tier 2, 1 escalated to IR |
+| Compromised Host | 192.168.1.10 |
+| Threat Origin | 185.220.101.45, Tor exit node |
+| Key Finding | All three alerts correlate to a single coordinated campaign |
 
----
+## What This Is
 
-## Executive Summary
+A scenario based shift exercise, not a live incident. The alerts, hosts, and timings are constructed. What is being exercised is the reasoning: triage under time pressure, containment before escalation, and the correlation that turns three tickets into one campaign.
 
-A full mock SOC shift simulation was conducted, tying together skills built across Days 1–14. Three alerts were triaged during the 08:00 AM 04:00 PM shift: an SSH brute-force attack, a phishing email campaign, and a suspicious outbound connection indicating data exfiltration.
+The scenario is built to punish the most common Tier 1 failure, which is working each alert to closure in isolation. Every alert here is individually closeable. Block the IP, quarantine the email, isolate the host, done. Three clean tickets, three satisfied SLAs, and a campaign that nobody saw.
 
-All three alerts were correlated to a single coordinated attack campaign originating from Tor exit node `185.220.101.45`. The attacker compromised internal host `192.168.1.10`, attempted phishing against a company user, and exfiltrated 2.3 MB of data before being detected and contained. The incident remains active with the IR team engaged.
+Everything in this exercise turns on noticing the same IP twice.
 
----
-
-## Affected System
-
-- **Analyst on Shift:** William (SOC Tier 1)
-- **Shift Window:** 08:00 AM 04:00 PM
-- **Compromised Host:** `192.168.1.10` (internal endpoint)
-- **Threat Origin:** `185.220.101.45` (Tor exit node)
-- **Alerts Handled:** 3 (1 Critical, 2 High) 2 Escalated, 1 Contained
-
----
-
-## Investigation Methodology
-
-### 1. Shift Start & Alert Queue Review
+## Shift Start
 
 ![SOC Dashboard](./screenshots/01_reports_folder.png)
 
-- Received SOC handoff at 08:00 AM and reviewed the alert queue
-- Confirmed SIEM and threat intelligence platform availability
-- Established baseline situational awareness for the shift
+Handoff received at 08:00, alert queue reviewed, SIEM and threat intelligence platform availability confirmed.
 
-#### SOC Observations:
+Tool readiness is checked before triage, not during it. The middle of a critical alert is a bad time to discover the enrichment platform is down.
 
-- Shift handoff and queue review are the foundation of SOC continuity
-- Tool readiness checks must precede active triage
-- Alert prioritization by severity drives the shift workflow
+## Alert 1, SSH Brute Force, 08:14
 
----
+SOC-2026-001, severity High.
 
-### 2. Alert 1 SSH Brute Force (08:14 AM)
+47 failed SSH attempts from 185.220.101.45.
 
-- SIEM alert `SOC-2026-001` (HIGH) fired at 08:14 AM
-- Identified 47 failed SSH attempts from `185.220.101.45`
-- Detected 1 successful login host `192.168.1.10` compromised
-- Blocked source IP, isolated the host, escalated to Tier 2
+One successful login. Host 192.168.1.10 compromised.
 
-#### SOC Observations:
+Action: source IP blocked, host isolated, escalated to Tier 2 with triage notes.
 
-- Brute force followed by a successful login is a confirmed compromise
-- Source IP enrichment immediately flagged a known Tor exit node
-- Containment preceded escalation host isolated before handoff
+The single successful login is the entire alert. Forty seven failures is an attack that failed. Forty seven failures and one success is an attacker with a shell, and the difference between those two readings is one line in the log that a rushed analyst scrolls past.
 
----
+Enrichment on the source IP returned a known Tor exit node. That fact goes in the notes and comes back later.
 
-### 3. Alert 2 Phishing Email (10:32 AM)
+Containment ran before escalation. The host was isolated first, then handed off. Escalating an unisolated compromised host means the attacker keeps working during the handoff.
 
-- Email gateway alert `SOC-2026-002` (HIGH) fired at 10:32 AM
-- Identified a spoofed `security@paypal.com` sender
-- Traced sending IP to `185.220.101.45` same Tor exit node as Alert 1
-- Quarantined the email, blocked the sender domain marked Contained
+## Alert 2, Phishing Email, 10:32
 
-#### SOC Observations:
+SOC-2026-002, severity High.
 
-- The shared source IP was the first signal of campaign-level correlation
-- Spoofed brand sender + Tor origin is a classic phishing pattern
-- Domain-level blocking prevents follow-up campaign waves
+Spoofed sender security@paypal.com. Sending IP 185.220.101.45.
 
----
+Action: email quarantined, sender domain blocked. Contained at Tier 1.
 
-### 4. Alert 3 Suspicious Outbound / Data Exfiltration (02:47 PM)
+This is the correlation point, and it is two hours after the first alert.
 
-- SIEM alert `SOC-2026-003` (CRITICAL) fired at 02:47 PM
-- Detected compromised host `192.168.1.10` contacting external C2
-- Confirmed 2.3 MB of data exfiltrated over the channel
-- Escalated to the IR team as an active critical incident
+On its own this is a routine phishing ticket. Spoofed brand, hostile origin, quarantine and close. It only becomes something else because the sending IP is the same IP from 08:14, and the only reason that registered is that the source IP from Alert 1 was written down rather than just blocked.
 
-#### SOC Observations:
+An attacker who brute forces SSH and phishes a user from the same infrastructure is not two attackers. It is one operator working two paths into the same organisation.
 
-- Outbound C2 traffic from a known-compromised host confirms attacker objectives
-- Data exfiltration escalates the incident to a potential data breach
-- The compromised host ties Alert 3 directly back to Alert 1
+## Alert 3, Data Exfiltration, 14:47
 
----
+SOC-2026-003, severity Critical.
 
-### 5. Campaign Correlation & End of Shift Report
+Compromised host 192.168.1.10 contacting external command and control. 2.3 MB outbound.
+
+Action: escalated to the IR team as an active critical incident.
+
+The host is the link. This is the same 192.168.1.10 that was compromised at 08:14, now sending data out.
+
+That connection reclassifies the whole day. Alert 1 stops being a contained brute force and becomes the initial access stage of a breach. Alert 3 stops being an anomalous connection and becomes the objective. The attacker got in at 08:14 and took data at 14:47, and the six hours in between are now the question the IR team has to answer.
+
+Data leaving makes this a potential breach, not just an intrusion, which is why it goes to IR and not Tier 2.
+
+## Correlation
 
 ![End of Shift Report](./screenshots/02_shift_summary.png)
 
-- Correlated all three alerts through shared IOCs to a single campaign
-- Mapped the full attack chain: brute force → phishing → exfiltration
-- Produced the End of Shift Report and flagged the active incident for IR
+Two links tie the shift together.
 
-#### SOC Observations:
+The IP links Alert 1 to Alert 2. Same source, different attack path, same operator.
 
-- IOC pivoting converts three isolated alerts into one coordinated campaign
-- End-of-shift documentation is the backbone of SOC continuity
-- Active incidents must be explicitly flagged in the handoff
+The host links Alert 1 to Alert 3. Compromised in the morning, exfiltrating in the afternoon.
 
----
+Alert 1 is the hinge. It is the only alert that touches both of the others, and it is the one that would have been closed and forgotten if the source IP had been blocked without being recorded.
+
+```
+185.220.101.45 (Tor exit node)
+   ├── 08:14  SSH brute force ──► 192.168.1.10 compromised
+   │                                    │
+   ├── 10:32  Phishing email            │
+   │          spoofing PayPal           │
+   │                                    ▼
+   └── 14:47                    C2 contact, 2.3 MB exfiltrated
+```
+
+Three alerts. One IP. One campaign.
 
 ## Alert Summary
 
-| Alert ID | Time | Severity | Description | Status |
-|---|---|---|---|---|
-| SOC-2026-001 | 08:14 AM | HIGH | SSH Brute Force Host Compromised | Escalated to Tier 2 |
-| SOC-2026-002 | 10:32 AM | HIGH | Phishing Email Spoofed PayPal | Contained |
-| SOC-2026-003 | 02:47 PM | CRITICAL | Suspicious Outbound Data Exfiltration | Escalated to IR Team |
+| Alert ID | Time | Severity | Description | Disposition |
+| --- | --- | --- | --- | --- |
+| SOC-2026-001 | 08:14 | High | SSH brute force, host compromised | Escalated to Tier 2 |
+| SOC-2026-002 | 10:32 | High | Phishing email, spoofed PayPal | Contained at Tier 1 |
+| SOC-2026-003 | 14:47 | Critical | Outbound C2, data exfiltration | Escalated to IR |
 
----
+## Campaign Timeline
 
-## Full Attack Campaign Timeline
-
-| Time | Event | Action Taken |
-|---|---|---|
-| 08:14 AM | SSH brute force from `185.220.101.45` — 47 attempts | Source IP blocked |
-| 08:14 AM | 1 successful SSH login host `192.168.1.10` compromised | Host isolated |
-| 10:32 AM | Phishing email from same Tor exit node spoofed PayPal | Email quarantined |
-| 02:47 PM | Compromised host contacts C2 — 2.3 MB exfiltrated | IR team activated |
-
----
+| Time | Event | Action |
+| --- | --- | --- |
+| 08:14 | 47 failed SSH attempts from 185.220.101.45 | Source IP blocked |
+| 08:14 | 1 successful SSH login, 192.168.1.10 compromised | Host isolated, escalated to Tier 2 |
+| 10:32 | Phishing email from the same IP, spoofing PayPal | Email quarantined, domain blocked |
+| 14:47 | 192.168.1.10 contacts C2, 2.3 MB exfiltrated | IR team activated |
 
 ## Master IOC Table
 
-| Type | Value | Source | Verdict |
-|---|---|---|---|
-| IP Address | `185.220.101.45` | All 3 Alerts | ❌ Malicious Tor Exit Node |
-| Domain | `secure-login-verify.com` | Alert 2 | ❌ Malicious Phishing Domain |
-| Email | `attacker@secure-login-verify.com` | Alert 2 | ❌ Attacker Email |
-| Internal Host | `192.168.1.10` | Alert 1 + 3 | ❌ Compromised |
-| Data Exfiltrated | 2.3 MB outbound | Alert 3 | ❌ Possible Data Breach |
+| Type | Value | Appears In | Verdict |
+| --- | --- | --- | --- |
+| IP address | 185.220.101.45 | Alerts 1, 2, 3 | Malicious, Tor exit node |
+| Domain | secure-login-verify.com | Alert 2 | Malicious phishing domain |
+| Email | attacker@secure-login-verify.com | Alert 2 | Attacker controlled |
+| Internal host | 192.168.1.10 | Alerts 1, 3 | Compromised |
+| Data volume | 2.3 MB outbound | Alert 3 | Suspected breach |
 
----
+The IP appears in all three rows of the day. That repetition is the finding, and it is only visible because the IOCs from each alert were recorded in a shared table rather than in three separate tickets.
 
 ## MITRE ATT&CK Campaign Mapping
 
-| Behavior | Technique ID | Alert |
-|---|---|---|
-| Brute Force: Password Guessing | T1110.001 | Alert 1 |
-| Valid Accounts | T1078 | Alert 1 + 3 |
-| Phishing: Spearphishing | T1566.001 | Alert 2 |
-| Masquerading | T1036.005 | Alert 2 |
-| Exfiltration Over C2 Channel | T1041 | Alert 3 |
-| Application Layer Protocol: Web | T1071.001 | Alert 3 |
-| Proxy: Multi-hop Proxy | T1090.003 | All 3 Alerts |
+| Tactic | Technique | ID | Alert |
+| --- | --- | --- | --- |
+| Credential Access | Brute force, password guessing | T1110.001 | 1 |
+| Initial Access | Valid accounts | T1078 | 1 |
+| Initial Access | Phishing, spearphishing attachment | T1566.001 | 2 |
+| Defence Evasion | Masquerading, match legitimate name | T1036.005 | 2 |
+| Command and Control | Application layer protocol, web | T1071.001 | 3 |
+| Command and Control | Proxy, multi hop proxy | T1090.003 | 1, 2, 3 |
+| Exfiltration | Exfiltration over C2 channel | T1041 | 3 |
 
----
+Read down the tactic column and the kill chain is complete: credential access, initial access, evasion, command and control, exfiltration. That is not three alerts. That is an intrusion with every stage represented.
 
-## SOC Analyst Findings
+## Analyst Findings
 
-- Three alerts triaged during the shift were confirmed as a single coordinated campaign
-- Attacker used Tor exit node `185.220.101.45` across all three attack stages
-- Internal host `192.168.1.10` was compromised via SSH brute force
-- Phishing campaign leveraged the same infrastructure with a spoofed PayPal sender
-- 2.3 MB of data was exfiltrated over a C2 channel before containment
-- Two alerts escalated (Tier 2 and IR team), one contained at Tier 1
-- Incident remains active with the IR team engaged
+Three alerts triaged during the shift, confirmed as one coordinated campaign.
 
----
+Source IP 185.220.101.45 present in all three alerts, identified as a Tor exit node.
 
-## SOC Analyst Response
+Host 192.168.1.10 compromised via brute force at 08:14 and exfiltrating at 14:47.
 
-- Blocked the malicious source IP at the perimeter firewall
-- Network-isolated the compromised host to halt lateral movement and C2
-- Quarantined the phishing email and blocked the sender domain
-- Escalated the brute-force compromise to Tier 2 with full triage notes
-- Escalated the data exfiltration event to the IR team as a critical incident
-- Produced a master IOC table for organisation wide blocking
-- Delivered a complete End of Shift Report flagging the active incident
+Phishing used the same infrastructure, indicating a second access path rather than a separate actor.
 
----
+2.3 MB exfiltrated before containment, making this a suspected breach.
 
-## Analyst Insight
+Two escalations, one Tier 1 containment, incident active at handoff.
 
-This capstone demonstrates the difference between handling alerts and running a shift. Any analyst can triage an SSH brute force, a phishing email, or an outbound connection in isolation. The skill that defines a SOC analyst is correlation recognising that a shared IP across three alerts, eight hours apart, is not coincidence but campaign. Connecting them turned three separate tickets into one high-fidelity incident with a clear attack chain, a full IOC set, and an actionable IR handoff.
+## What Was Handed Off
 
----
+Escalation package to Tier 2 on the brute force compromise with full triage notes and the isolation already applied.
 
-## Learning Outcome
+Escalation to IR on the exfiltration as a critical active incident.
 
-- Run a complete SOC Tier 1 shift from handoff to end-of-shift report
-- Triage and prioritize multiple concurrent alerts by severity
-- Correlate isolated alerts into a single coordinated attack campaign
-- Apply containment, escalation, and documentation under shift conditions
-- Build a master IOC table spanning multiple attack stages
-- Map a full attack campaign to the MITRE ATT&CK framework
-- Produce escalation packages for Tier 2 and IR teams
-- Integrate skills from Days 1–14 into one operational workflow
+Master IOC table for organisation wide blocking.
 
----
+End of shift report with the campaign correlation stated explicitly and the incident flagged as active.
+
+The report says active, not resolved. Three alerts were handled and the incident is not over, and a handoff that blurs that distinction hands the next shift a false picture.
+
+## What This Capstone Demonstrates
+
+Running a shift from handoff to end of shift report rather than working a single alert.
+
+Prioritising concurrent alerts by severity while keeping earlier alerts in scope.
+
+Reading 47 failures and 1 success as a compromise, not a blocked attack.
+
+Containing before escalating, so the handoff does not hand over an active foothold.
+
+Recording IOCs into a shared table so correlation across an eight hour window is possible at all.
+
+Correlating on a shared IP and a shared host to reclassify three tickets as one campaign.
+
+Mapping a complete kill chain to MITRE ATT&CK across five tactics.
+
+Producing escalation packages Tier 2 and IR can act on without re running the triage.
 
 ## Repository Structure
 
@@ -216,6 +202,5 @@ mock-soc-shift-simulation-capstone/
 
 ---
 
-## Conclusion
-
-This capstone project demonstrates a complete SOC Tier 1 shift workflow. Three alerts were triaged, investigated, contained, and escalated using skills built across Days 1–14 SIEM detection, phishing analysis, threat intelligence, OSINT, MITRE ATT&CK mapping, and incident response. All three alerts were correlated into a single coordinated attack campaign leveraging Tor anonymisation. The shift produced a full campaign timeline, master IOC table, MITRE mapping, and IR escalation package proving real-world SOC readiness at the Tier 1 and Tier 2 level.
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-WilliamInCyber-blue?style=flat&logo=linkedin)](https://linkedin.com/in/WilliamInCyber)
+[![X](https://img.shields.io/badge/X-WilliamInCyber-black?style=flat&logo=x)](https://x.com/WilliamInCyber)
