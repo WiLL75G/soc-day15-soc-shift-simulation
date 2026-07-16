@@ -1,3 +1,4 @@
+
 # Mock SOC Shift Simulation, Capstone
 
 A full Tier 1 shift run end to end. Three alerts arrive eight hours apart and look unrelated. One shared IP proves they are the same attacker.
@@ -78,6 +79,8 @@ Data leaving makes this a potential breach, not just an intrusion, which is why 
 
 ![End of Shift Report](./screenshots/02_shift_summary.png)
 
+![Handover Notes](./screenshots/03_handover_notes.png)
+
 Two links tie the shift together.
 
 The IP links Alert 1 to Alert 2. Same source, different attack path, same operator.
@@ -133,7 +136,7 @@ The IP appears in all three rows of the day. That repetition is the finding, and
 | --- | --- | --- | --- |
 | Credential Access | Brute force, password guessing | T1110.001 | 1 |
 | Initial Access | Valid accounts | T1078 | 1 |
-| Initial Access | Phishing, spearphishing attachment | T1566.001 | 2 |
+| Initial Access | Phishing, spearphishing link | T1566.002 | 2 |
 | Defence Evasion | Masquerading, match legitimate name | T1036.005 | 2 |
 | Command and Control | Application layer protocol, web | T1071.001 | 3 |
 | Command and Control | Proxy, multi hop proxy | T1090.003 | 1, 2, 3 |
@@ -188,7 +191,7 @@ Producing escalation packages Tier 2 and IR can act on without re running the tr
 ## Repository Structure
 
 ```
-mock-soc-shift-simulation-capstone/
+soc-day15-soc-shift-simulation/
 ├── README.md
 ├── reports/
 │   ├── alert1_ssh_brute_force.md
@@ -197,7 +200,8 @@ mock-soc-shift-simulation-capstone/
 │   └── end_of_shift_report.md
 └── screenshots/
     ├── 01_reports_folder.png
-    └── 02_shift_summary.png
+    ├── 02_shift_summary.png
+    └── 03_handover_notes.png
 ```
 
 ---
